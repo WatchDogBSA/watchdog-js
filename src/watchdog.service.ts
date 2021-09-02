@@ -1,3 +1,4 @@
+import { AffectedUser } from "./issue/affected-user";
 import { ErrorsService } from './services/errors.service';
 import { HttpErrorService } from './services/http-error.service';
 import { Breadcrumb } from './models/breadcrumb';
@@ -46,3 +47,8 @@ export const enableErrorHandling = () => {
         errorsService.log(err);
     });
 }
+
+export const setUserInfo = (userOptions: AffectedUser) => {
+    errorsService.setUser(userOptions);
+}
+

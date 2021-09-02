@@ -1,6 +1,6 @@
 {
   "name": "@watchdog-bsa/watchdog-js",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Package for intercepting errors in your application. Also gives you additional information about user actions which cause error.",
   "main": "./dist/out-tsc/watchdog.service.js",
   "types": "./dist/out-tsc/watchdog.service.d.ts",
