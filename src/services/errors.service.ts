@@ -1,3 +1,4 @@
+import { AffectedUser } from "./../issue/affected-user";
 import { IssueMessage } from '../issue/issue-message';
 import { StackFrame } from '../issue/stack-frame';
 import { IssueEnvironment } from '../issue/issue-environment';
@@ -5,10 +6,13 @@ import { HttpResponseErrorMessage } from '../issue/http-response.message';
 import * as stackTraceParser from 'stacktrace-parser';
 import { BreadcrumbService } from './breadcrumb.service';
 import { HttpErrorResponse } from '../issue/http-error-response';
+import { createUUID } from '../utils/watchdog.utils';
 
 export class ErrorsService {
+    private readonly userIndetifier = 'UserIdent';
     private apiKey: string;
     private endpoint: string;
+    private userInfo: AffectedUser = {} as AffectedUser;
 
     constructor(
         private breadcrumbService: BreadcrumbService,
@@ -17,6 +21,19 @@ export class ErrorsService {
     setApiKeyWithEndpoint(apiKey: string, endpoint: string) {
         this.apiKey = apiKey;
         this.endpoint = endpoint;
+    }
+
+    setUser(userOptions: AffectedUser) {
+        this.userInfo = userOptions;
+
+        if (this.userInfo.isAnonymous) {
+            let localUser = localStorage.getItem(this.userIndetifier);
+            if (!localUser) { 
+                localUser = createUUID();
+                localStorage.setItem(this.userIndetifier, localUser);
+            }
+            this.userInfo = { ...this.userInfo, identifier: localUser };
+        }
     }
 
     log(error: any) {
@@ -50,7 +67,8 @@ export class ErrorsService {
                 environmentMessage: this.getEnvironment(),
                 breadcrumbs: this.breadcrumbService.getBreadcrumbsAndClear()
             },
-            apiKey: this.apiKey
+            apiKey: this.apiKey,
+            user: this.userInfo,
         };
     }
 
