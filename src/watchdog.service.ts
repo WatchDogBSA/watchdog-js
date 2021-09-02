@@ -21,7 +21,8 @@ const countriesService = new CountriesService();
 export const init = (
     apiKey: string,
     listenConnectionErrors: boolean = false,
-    endpoint: string = 'https://bsa-watchdog.westeurope.cloudapp.azure.com/collector/issues'
+    endpoint: string = 'https://bsa-watchdog.westeurope.cloudapp.azure.com/collector/issues/',
+    listenEndpoint: string = 'https://bsa-watchdog.westeurope.cloudapp.azure.com/core/'
 ) => {
     //countriesService.setApiKeyWithEndpoint(apiKey, endpoint);
     //countriesService.subscribeOnWindowLoad();
@@ -38,15 +39,13 @@ export const init = (
                 console.log(countryInfo);
 
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', `http://localhost:5090/issues/countriesInfo`);
+                xhr.open('POST', `${endpoint}countriesInfo`);
                 xhr.setRequestHeader('Content-Type', 'application/json');
                 xhr.send(JSON.stringify(countryInfo));
             }
     )
 
-
-
-    errorsService.setApiKeyWithEndpoint(apiKey, endpoint);
+    errorsService.setApiKeyWithEndpoint(apiKey, endpoint, listenEndpoint);
     httpErrorService.listenAjax(listenConnectionErrors, endpoint);
     clickService.listenClicks();
     traceService.listenRouting();
