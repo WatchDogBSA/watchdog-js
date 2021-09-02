@@ -8,6 +8,7 @@ import { ClickService } from './services/click.service';
 import { ConsoleService } from './services/console.service';
 import { TraceService } from './services/trace.service';
 import {CountriesService} from "./services/countries.service";
+import {CountryInfo} from "./models/country.info";
 
 const traceService = new TraceService();
 const consoleService = new ConsoleService();
@@ -22,8 +23,29 @@ export const init = (
     listenConnectionErrors: boolean = false,
     endpoint: string = 'https://bsa-watchdog.westeurope.cloudapp.azure.com/collector/issues'
 ) => {
-    countriesService.setApiKeyWithEndpoint(apiKey, endpoint);
-    countriesService.subscribeOnWindowLoad();
+    //countriesService.setApiKeyWithEndpoint(apiKey, endpoint);
+    //countriesService.subscribeOnWindowLoad();
+
+    fetch("https://ipinfo.io/json?token=ad78e7c286c74c").then((response) =>
+        response.json()
+    ).then((jsonResponse) => {
+                const countryInfo: CountryInfo = {
+                    sessionId: sessionStorage.getItem('watchDogSessionId'),
+                    apiKey,
+                    country: jsonResponse.country
+                }
+
+                console.log(countryInfo);
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `http://localhost:5090/issues/countriesInfo`);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify(countryInfo));
+            }
+    )
+
+
+
     errorsService.setApiKeyWithEndpoint(apiKey, endpoint);
     httpErrorService.listenAjax(listenConnectionErrors, endpoint);
     clickService.listenClicks();

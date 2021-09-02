@@ -42,18 +42,16 @@ export class CountriesService {
         }
     }
 
-    private getCounty(): string {
-        const xhr = new XMLHttpRequest();
+    getCounty(): string {
         let country: string;
 
-        xhr.open('GET', this.countryInfoEndpoint);
-        xhr.send();
-
-        xhr.onload = function() {
-            let responseObj = xhr.response;
-            country = responseObj.country;
-            console.log(responseObj.message);
-        };
+        fetch("https://ipinfo.io/json?token=ad78e7c286c74c").then((response) =>
+            response.json()
+        ).then((jsonResponse) => {
+                country = jsonResponse.country;
+                console.log(`country in service: ${country}`);
+            }
+        )
 
         return country;
     }
