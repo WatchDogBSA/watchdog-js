@@ -6,6 +6,7 @@ import { BreadcrumbService } from './services/breadcrumb.service';
 import { ClickService } from './services/click.service';
 import { ConsoleService } from './services/console.service';
 import { TraceService } from './services/trace.service';
+import {CountriesService} from "./services/countries.service";
 
 const traceService = new TraceService();
 const consoleService = new ConsoleService();
@@ -13,14 +14,16 @@ const clickService = new ClickService();
 const breadcrumbService = new BreadcrumbService();
 const errorsService = new ErrorsService(breadcrumbService);
 const httpErrorService = new HttpErrorService(errorsService);
+const countriesService = new CountriesService();
 
 export const init = (
     apiKey: string,
     listenConnectionErrors: boolean = false,
     endpoint: string = 'https://bsa-watchdog.westeurope.cloudapp.azure.com/collector/issues'
 ) => {
+    countriesService.setApiKeyWithEndpoint(apiKey, endpoint);
+    countriesService.subscribeOnWindowLoad();
     errorsService.setApiKeyWithEndpoint(apiKey, endpoint);
-
     httpErrorService.listenAjax(listenConnectionErrors, endpoint);
     clickService.listenClicks();
     traceService.listenRouting();
