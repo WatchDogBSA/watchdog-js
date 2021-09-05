@@ -45,13 +45,14 @@ export const parseBodyData = (data: any) => {
 }
 
 export const logHttpToErrorService = (request: XMLHttpRequest, errorService: ErrorsService) => {
-    errorService.log({
-        message: `Http failure response for ${request.responseURL}: ${request.status} ${request.statusText}`,
-        url: request['sendUrl'],
-        status: request.status,
-        statusText: request.statusText,
-        name: 'HttpErrorResponse'
-    } as HttpErrorResponse);
+    let error = new HttpErrorResponse();
+    error.message = `Http failure response for ${request.responseURL}: ${request.status} ${request.statusText}`,
+    error.url = request.responseURL,
+    error.status = request.status,
+    error.statusText = request.statusText,
+    error.name = 'HttpErrorResponse';
+    
+    errorService.log(error);
 }
 
 export const createUUID = () => {
