@@ -9,7 +9,7 @@ import { HttpErrorResponse } from '../issue/http-error-response';
 import { createUUID } from '../utils/watchdog.utils';
 
 export class ErrorsService {
-    private readonly userIndetifier = 'UserIdent';
+    private readonly userIndetifier = 'UserIdentifier';
     private apiKey: string;
     private listenEndpoint: string;
     private endpoint: string;
@@ -29,7 +29,10 @@ export class ErrorsService {
     }
 
     setUser(userOptions: AffectedUser) {
-        if (!this.projectListeningState) return;
+        if (!this.projectListeningState) {
+            this.breadcrumbService.clear();
+            return;
+        }
 
         this.userInfo = userOptions;
 
@@ -60,7 +63,7 @@ export class ErrorsService {
     }
 
     private checkListeningStatus(apiKey: string) {
-        const url = this.listenEndpoint+'/applications/listening/'+apiKey;
+        const url = `${this.listenEndpoint}applications/listening/${apiKey}`;
 
         fetch(url, {method:'GET'}).then(r => r.text()).then(r => {
             this.projectListeningState = (r === 'true');
@@ -72,7 +75,7 @@ export class ErrorsService {
 
     private sendToCollector(issueMessage: IssueMessage) {
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', this.endpoint);
+        xhr.open('POST', `${this.endpoint}issues/`);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify(issueMessage));
     }

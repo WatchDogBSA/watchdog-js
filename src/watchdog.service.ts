@@ -21,11 +21,11 @@ const countriesService = new CountriesService();
 export const init = (
     apiKey: string,
     listenConnectionErrors: boolean = false,
-    endpoint: string = 'https://bsa-watchdog.westeurope.cloudapp.azure.com/collector/issues/',
-    listenEndpoint: string = 'https://bsa-watchdog.westeurope.cloudapp.azure.com/core/'
+    endpoint: string = 'https://bsa-watchdog.westeurope.cloudapp.azure.com/collector/',
+    listenEndpoint: string = 'https://bsa-watchdog.westeurope.cloudapp.azure.com/api/'
 ) => {
-    //countriesService.setApiKeyWithEndpoint(apiKey, endpoint);
-    //countriesService.subscribeOnWindowLoad();
+    // countriesService.setApiKeyWithEndpoint(apiKey, endpoint);
+    // countriesService.subscribeOnWindowLoad();
 
     fetch("https://ipinfo.io/json?token=ad78e7c286c74c").then((response) =>
         response.json()
@@ -39,7 +39,7 @@ export const init = (
                 console.log(countryInfo);
 
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', `${endpoint}countriesInfo`);
+                xhr.open('POST', `${endpoint}analytics/countriesInfo`);
                 xhr.setRequestHeader('Content-Type', 'application/json');
                 xhr.send(JSON.stringify(countryInfo));
             }
