@@ -43,7 +43,7 @@ export class HttpErrorService extends BaseService {
                 }
 
                 //checking error response status
-                if (current.status >= 400) {
+                if (current.status >= 400 && !current.responseURL.includes(endpoint)) {
                     logHttpToErrorService(current, errorsService);
                 }
             };

@@ -1,4 +1,4 @@
-import { AffectedUser } from "./../issue/affected-user";
+import { AffectedUser } from '../issue/affected-user';
 import { IssueMessage } from '../issue/issue-message';
 import { StackFrame } from '../issue/stack-frame';
 import { IssueEnvironment } from '../issue/issue-environment';
@@ -9,21 +9,31 @@ import { HttpErrorResponse } from '../issue/http-error-response';
 import { createUUID } from '../utils/watchdog.utils';
 
 export class ErrorsService {
-    private readonly userIndetifier = 'UserIdent';
+    private readonly userIndetifier = 'UserIdentifier';
     private apiKey: string;
+    private listenEndpoint: string;
     private endpoint: string;
     private userInfo: AffectedUser = {} as AffectedUser;
+    private projectListeningState: boolean = false;
 
     constructor(
         private breadcrumbService: BreadcrumbService,
-    ) { }
+    ) {  }
 
-    setApiKeyWithEndpoint(apiKey: string, endpoint: string) {
+    setApiKeyWithEndpoint(apiKey: string, endpoint: string, listenEndpoint: string) {
         this.apiKey = apiKey;
         this.endpoint = endpoint;
+        this.listenEndpoint = listenEndpoint;
+
+        this.checkListeningStatus(apiKey);
     }
 
     setUser(userOptions: AffectedUser) {
+        if (!this.projectListeningState) {
+            this.breadcrumbService.clear();
+            return;
+        }
+
         this.userInfo = userOptions;
 
         if (this.userInfo.isAnonymous) {
@@ -49,8 +59,23 @@ export class ErrorsService {
     }
 
     private sendIssueToCollector(issueMessage: IssueMessage) {
+        this.sendToCollector(issueMessage);
+    }
+
+    private checkListeningStatus(apiKey: string) {
+        const url = `${this.listenEndpoint}applications/listening/${apiKey}`;
+
+        fetch(url, {method:'GET'}).then(r => r.text()).then(r => {
+            this.projectListeningState = (r === 'true');
+            if (!this.projectListeningState) {
+                console.error(`Your api key is not valid! Please, check project api key!`);
+            }
+        });
+    }
+
+    private sendToCollector(issueMessage: IssueMessage) {
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', this.endpoint);
+        xhr.open('POST', `${this.endpoint}issues/`);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify(issueMessage));
     }
