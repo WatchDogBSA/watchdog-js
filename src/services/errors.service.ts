@@ -29,7 +29,6 @@ export class ErrorsService {
     }
 
     setUser(userOptions: AffectedUser) {
-
         this.userInfo = userOptions;
 
         if (this.userInfo.isAnonymous) {
