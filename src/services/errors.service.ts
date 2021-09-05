@@ -29,10 +29,6 @@ export class ErrorsService {
     }
 
     setUser(userOptions: AffectedUser) {
-        if (!this.projectListeningState) {
-            this.breadcrumbService.clear();
-            return;
-        }
 
         this.userInfo = userOptions;
 
@@ -47,6 +43,11 @@ export class ErrorsService {
     }
 
     log(error: any) {
+        if (!this.projectListeningState) {
+            this.breadcrumbService.clear();
+            return;
+        }
+
         const issueMessage = this.addContextInfo(error);
 
         if (error instanceof HttpErrorResponse
