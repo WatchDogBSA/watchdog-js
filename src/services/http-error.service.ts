@@ -1,10 +1,11 @@
 import { ErrorsService } from './errors.service';
 import { BaseService } from './base.service';
 import { AjaxBreadcrumb } from '../models/ajax-breadcrumb';
-import { parseBodyData, logHttpToErrorService } from '../utils/watchdog.utils';
+import {parseBodyData, logHttpToErrorService, logResponseToResponseService} from '../utils/watchdog.utils';
+import {ResponseService} from "./response.service";
 
 export class HttpErrorService extends BaseService {
-    constructor(private errorService: ErrorsService) {
+    constructor(private errorService: ErrorsService, private responseService: ResponseService) {
         super();
     }
 
@@ -29,9 +30,26 @@ export class HttpErrorService extends BaseService {
     private listenResponses(listenConnectionErrors: boolean, endpoint: string) {
         const source = this.eventSource;
         const errorsService = this.errorService;
+        const responseService = this.responseService;
 
         const oldSend = XMLHttpRequest.prototype.send;
         XMLHttpRequest.prototype.send = function (body?: Document | BodyInit) {
+            let responseStart;
+            let responseTotal;
+
+            this.onloadstart = () => {
+                responseStart = new Date().getTime();
+            }
+
+            this.onprogress = () => {
+                responseTotal = new Date().getTime() - responseStart;
+            }
+
+            this.onloadend = (ev: ProgressEvent<EventTarget>) => {
+                const current = ev.currentTarget as XMLHttpRequest;
+                logResponseToResponseService(current, responseTotal, responseService);
+            }
+
             this.onload = function (ev: ProgressEvent<EventTarget>) {
                 const current = ev.currentTarget as XMLHttpRequest;
                 const parsedBody = parseBodyData(body);

@@ -1,6 +1,8 @@
 import { HttpErrorResponse } from '../issue/http-error-response';
 import { ErrorsService } from '../services/errors.service';
 import { BreadcrumbAttribute, BreadcrumbHtmlElement } from '../models/breadcrumb-html-element';
+import {ResponseService} from "../services/response.service";
+import {ResponseInfo} from "../models/response.info";
 
 const handleAttributes = (attributes: NamedNodeMap) => {
     if (attributes) {
@@ -53,6 +55,20 @@ export const logHttpToErrorService = (request: XMLHttpRequest, errorService: Err
     error.name = 'HttpErrorResponse';
     
     errorService.log(error);
+}
+
+export const logResponseToResponseService = (request: XMLHttpRequest, time: number, responseService: ResponseService) => {
+    let response = new ResponseInfo();
+
+    response.date = new Date(new Date().toUTCString());
+    response.url = request.responseURL;
+    response.status = request.status;
+    response.statusText = request.statusText;
+    response.body = request.response;
+    response.size = +request.getResponseHeader("Content-Length") / 1000;
+    response.time = time;
+
+    responseService.log(response);
 }
 
 export const createUUID = () => {

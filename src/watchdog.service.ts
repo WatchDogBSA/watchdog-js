@@ -9,13 +9,15 @@ import { ConsoleService } from './services/console.service';
 import { TraceService } from './services/trace.service';
 import {CountriesService} from "./services/countries.service";
 import {CountryInfo} from "./models/country.info";
+import {ResponseService} from "./services/response.service";
 
 const traceService = new TraceService();
 const consoleService = new ConsoleService();
 const clickService = new ClickService();
 const breadcrumbService = new BreadcrumbService();
 const errorsService = new ErrorsService(breadcrumbService);
-const httpErrorService = new HttpErrorService(errorsService);
+const responseService = new ResponseService();
+const httpErrorService = new HttpErrorService(errorsService, responseService);
 const countriesService = new CountriesService();
 
 export const init = (
@@ -36,8 +38,6 @@ export const init = (
                     country: jsonResponse.country
                 }
 
-                console.log(countryInfo);
-
                 const xhr = new XMLHttpRequest();
                 xhr.open('POST', `${endpoint}analytics/countriesInfo`);
                 xhr.setRequestHeader('Content-Type', 'application/json');
@@ -45,6 +45,7 @@ export const init = (
             }
     )
 
+    responseService.setApiKeyWithEndpoint(apiKey, endpoint);
     errorsService.setApiKeyWithEndpoint(apiKey, endpoint, listenEndpoint);
     httpErrorService.listenAjax(listenConnectionErrors, endpoint);
     clickService.listenClicks();
